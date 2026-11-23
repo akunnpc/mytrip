@@ -1,0 +1,45 @@
+
+name: Flatten Nested Folder
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  move:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Move Files to Parent Folder
+        run: |
+          SOURCE="mytrip/kirim-layar/kirim-layar"
+
+          if [ ! -d "$SOURCE" ]; then
+            echo "Source folder not found!"
+            exit 1
+          fi
+
+          cp -a "$SOURCE/." mytrip/
+
+          rm -rf mytrip/kirim-layar
+
+      - name: Commit Changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "No changes detected."
+            exit 0
+          fi
+
+          git commit -m "Move nested files to mytrip root"
+          git push
+          
